@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Red Sauce Pasta",
+    "category": "Veg",
+    "prepTime": "15 min",
+    "available": true,
+    "price": 140,
+    "image": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 2,
+    "name": "Chicken Biryani",
+    "category": "Non Veg",
+    "prepTime": "25 min",
+    "available": true,
+    "price": 180,
+    "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 3,
+    "name": "Paneer Roll",
+    "category": "Snacks",
+    "prepTime": "10 min",
+    "available": true,
+    "price": 80,
+    "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 4,
+    "name": "Chicken Fried Rice",
+    "category": "Chinese",
+    "prepTime": "20 min",
+    "available": true,
+    "price": 120,
+    "image": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 5,
+    "name": "Dosa Chutney",
+    "category": "Snacks",
+    "prepTime": "10 min",
+    "available": true,
+    "price": 70,
+    "image": "https://images.unsplash.com/photo-1627308595229-7830f5c90683?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 6,
+    "name": "Vada Pav",
+    "category": "Snacks",
+    "prepTime": "5 min",
+    "available": true,
+    "price": 15,
+    "image": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 7,
+    "name": "Paneer Tikka Masala",
+    "category": "Veg",
+    "prepTime": "25 min",
+    "available": true,
+    "price": 100,
+    "image": "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 8,
+    "name": "Misal Pav",
+    "category": "Snacks",
+    "prepTime": "10 min",
+    "available": true,
+    "price": 60,
+    "image": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 9,
+    "name": "Ice Cream",
+    "category": "Dessert",
+    "prepTime": "5 min",
+    "available": true,
+    "price": 50,
+    "image": "https://images.unsplash.com/photo-1559703248-dcaaec9fac45?w=500&h=500&fit=crop"
+  },
+  {
+    "id": 10,
+    "name": "Cold Coffee",
+    "category": "Drinks",
+    "prepTime": "5 min",
+    "available": true,
+    "price": 80,
+    "image": "https://images.unsplash.com/photo-1461023058943-07cb1ce8dbdb?w=500&h=500&fit=crop"
+  }
+]

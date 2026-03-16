@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,9 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-[#0f1115]">
-        {children}
+        <SessionProviderWrapper>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
 }
+
 
