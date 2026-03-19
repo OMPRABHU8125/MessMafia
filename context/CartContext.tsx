@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export interface CartItem {
-  id: number;
+  id: string | number;
   name: string;
   price: number;
   image: string;
@@ -15,9 +15,9 @@ export interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (itemId: number) => void;
-  increaseQuantity: (itemId: number) => void;
-  decreaseQuantity: (itemId: number) => void;
+  removeFromCart: (itemId: string | number) => void;
+  increaseQuantity: (itemId: string | number) => void;
+  decreaseQuantity: (itemId: string | number) => void;
   clearCart: () => void;
   cartTotalCount: number;
   cartTotalPrice: number;
@@ -61,17 +61,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const removeFromCart = (itemId: number) => {
+  const removeFromCart = (itemId: string | number) => {
     setCartItems((prev) => prev.filter((i) => i.id !== itemId));
   };
 
-  const increaseQuantity = (itemId: number) => {
+  const increaseQuantity = (itemId: string | number) => {
     setCartItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i))
     );
   };
 
-  const decreaseQuantity = (itemId: number) => {
+  const decreaseQuantity = (itemId: string | number) => {
     setCartItems((prev) =>
       prev.map((i) =>
         i.id === itemId && i.quantity > 1

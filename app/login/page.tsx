@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import MobileLayout from "@/components/MobileLayout";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 /* ─────────────────────── Icons ─────────────────────── */
 
@@ -76,7 +77,14 @@ function AuthButton({ icon, label, onClick, variant = "ghost" }: AuthButtonProps
 /* ─────────────────────── Main Page ─────────────────────── */
 
 export default function LoginPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/home");
+    }
+  }, [status, router]);
 
   const handleGoogleSignIn = () => {
     signIn("google", { callbackUrl: "/home" });

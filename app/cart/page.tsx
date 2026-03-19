@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import MobileLayout from "@/components/MobileLayout";
 import { useCart } from "@/context/CartContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /* ─────────────────────── Icons ─────────────────────── */
 
@@ -242,11 +242,56 @@ export default function CartPage() {
     decreaseQuantity,
     cartTotalCount,
     cartTotalPrice,
+    clearCart
   } = useCart();
+
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/login");
   }, [status, router]);
+
+  const handleCheckout = async () => {
+    if (isEmpty || !session) return;
+    
+    setIsCheckoutLoading(true);
+    setCheckoutMessage(null);
+
+    console.log('Sending Token to Backend:', (session as any).backendToken);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(session as any).backendToken}`,
+        },
+        body: JSON.stringify({
+          items: cartItems.map(item => ({
+            itemId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          totalPrice: cartTotalPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCheckoutMessage({ type: 'success', text: 'Order placed successfully!' });
+        clearCart();
+      } else {
+        setCheckoutMessage({ type: 'error', text: data.message || 'Failed to place order' });
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setCheckoutMessage({ type: 'error', text: 'Error connecting to server' });
+    } finally {
+      setIsCheckoutLoading(false);
+    }
+  };
 
   if (status === "loading" || status === "unauthenticated") {
     return (
@@ -273,7 +318,6 @@ export default function CartPage() {
     <MobileLayout>
       <style>{`* { scrollbar-width: none; -ms-overflow-style: none; } *::-webkit-scrollbar { display: none; }`}</style>
 
-      {/* Full viewport fill — position:absolute since MobileLayout is overflow:hidden */}
       <div
         style={{
           position: "absolute",
@@ -284,7 +328,6 @@ export default function CartPage() {
           overflow: "hidden",
         }}
       >
-        {/* Ambient glow */}
         <div style={{
           position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
           width: "280px", height: "200px", pointerEvents: "none",
@@ -292,7 +335,6 @@ export default function CartPage() {
           zIndex: 0,
         }} />
 
-        {/* ── Header ── */}
         <div
           style={{
             flexShrink: 0,
@@ -326,13 +368,10 @@ export default function CartPage() {
               </p>
             )}
           </div>
-
-          {/* Placeholder to keep title centered */}
           <div style={{ width: "38px" }} />
         </div>
 
-        {/* ── Empty State ── */}
-        {isEmpty ? (
+        {isEmpty && !checkoutMessage ? (
           <div
             style={{
               flex: 1,
@@ -381,9 +420,64 @@ export default function CartPage() {
               Browse Menu
             </Link>
           </div>
+        ) : isEmpty && checkoutMessage ? (
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 32px",
+                textAlign: "center",
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              <div
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "28px",
+                  background: checkoutMessage.type === 'success' ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
+                  border: checkoutMessage.type === 'success' ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(239,68,68,0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "24px",
+                }}
+              >
+                {checkoutMessage.type === 'success' ? (
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                ) : (
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                )}
+              </div>
+              <h2 style={{ fontSize: "22px", fontWeight: 700, color: "#fff", marginBottom: "8px" }}>
+                {checkoutMessage.type === 'success' ? 'Success!' : 'Oops!'}
+              </h2>
+              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)", lineHeight: 1.6, marginBottom: "36px" }}>
+                {checkoutMessage.text}
+              </p>
+              <button
+                onClick={() => {
+                  if (checkoutMessage.type === 'success') router.push('/home');
+                  else setCheckoutMessage(null);
+                }}
+                style={{
+                  width: "100%", height: "52px", borderRadius: "16px",
+                  background: checkoutMessage.type === 'success' ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" : "linear-gradient(135deg, #f59e0b 0%, #f97316 100%)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#fff", fontSize: "15px", fontWeight: 700,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+                  border: "none",
+                }}
+              >
+                {checkoutMessage.type === 'success' ? 'Back to Home' : 'Try Again'}
+              </button>
+            </div>
         ) : (
           <>
-            {/* ── Scrollable item list ── */}
             <div
               style={{
                 flex: 1,
@@ -406,7 +500,6 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* ── Fixed bottom panel ── */}
             <div
               style={{
                 flexShrink: 0,
@@ -419,30 +512,27 @@ export default function CartPage() {
                 zIndex: 2,
               }}
             >
-              {/* Summary rows */}
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
                 <SummaryRow label="Items" value={`${cartTotalCount}`} />
                 <SummaryRow
                   label="Est. prep time"
                   value={maxPrepTime > 0 ? `${maxPrepTime} min` : "15 min"}
                 />
-
-                {/* Dotted divider */}
                 <div style={{
                   borderTop: "1px dashed rgba(255,255,255,0.08)",
                   margin: "2px 0",
                 }} />
-
                 <SummaryRow label="Total" value={`₹${cartTotalPrice}`} highlight />
               </div>
 
-              {/* Checkout button */}
               <button
+                disabled={isCheckoutLoading}
+                onClick={handleCheckout}
                 style={{
                   width: "100%",
                   height: "54px",
                   borderRadius: "16px",
-                  background: "linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ea580c 100%)",
+                  background: isCheckoutLoading ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ea580c 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -450,16 +540,18 @@ export default function CartPage() {
                   color: "#fff",
                   fontSize: "16px",
                   fontWeight: 700,
-                  boxShadow: "0 8px 28px rgba(249,115,22,0.3), 0 2px 8px rgba(249,115,22,0.15)",
+                  boxShadow: isCheckoutLoading ? "none" : "0 8px 28px rgba(249,115,22,0.3), 0 2px 8px rgba(249,115,22,0.15)",
                   letterSpacing: "0.3px",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: isCheckoutLoading ? "not-allowed" : "pointer",
                 }}
               >
-                Proceed to Checkout
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14" /><path d="M12 5l7 7-7 7" />
-                </svg>
+                {isCheckoutLoading ? 'Processing...' : 'Proceed to Checkout'}
+                {!isCheckoutLoading && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" /><path d="M12 5l7 7-7 7" />
+                  </svg>
+                )}
               </button>
             </div>
           </>
